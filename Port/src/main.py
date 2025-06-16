@@ -492,6 +492,19 @@ class SearchWindow(QMainWindow):
     def on_search(self):
         print("Search button clicked")
 
+        # Implement a basic search functionality
+        search_term = "example"  # Replace with actual input from a search field
+        print(f"Searching for: {search_term}")
+
+        # Example logic: Search through a predefined list of items
+        items = ["example1", "example2", "example3"]
+        results = [item for item in items if search_term in item]
+
+        if results:
+            print("Search results:", results)
+        else:
+            print("No results found.")
+
 
 class TableWindow(QMainWindow):
     def __init__(self):
@@ -587,6 +600,19 @@ class MainWindow(QMainWindow):
 
     def on_search(self):
         print("Search button clicked")
+        
+        # Implement a basic search functionality
+        search_term = "example"  # Replace with actual input from a search field
+        print(f"Searching for: {search_term}")
+
+        # Example logic: Search through a predefined list of items
+        items = ["example1", "example2", "example3"]
+        results = [item for item in items if search_term in item]
+
+        if results:
+            print("Search results:", results)
+        else:
+            print("No results found.")
 
 
 # Main entry point for the Python version of XQStudio.
