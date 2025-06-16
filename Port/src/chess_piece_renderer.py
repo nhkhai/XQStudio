@@ -1,22 +1,20 @@
 from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtWidgets import QGraphicsScene
 
 
 class ChessPieceRenderer:
     def __init__(self):
         self.piece_name = "RHEAKAEHRCCPPPPPrheakaehrccppppp"
 
-    def render_piece(self, painter, piece_char, x_pos, y_pos):
+    def render_piece(self, scene, piece_char, x_pos, y_pos):
         x = 20 + 26 * x_pos - 26 // 2 + 1
         y = 20 + 26 * y_pos - 26 // 2 + 1
 
         if piece_char == 'K':
-            self.draw_red_k(painter, x, y)
+            self.draw_red_k(scene, x, y)
         elif piece_char == 'E':
-            self.draw_blk_e(painter, x, y)
+            self.draw_blk_e(scene, x, y)
         else:
-            painter.setBrush(QBrush(QColor("gray")))
-            painter.drawEllipse(x, y, 24, 24)
+            scene.addEllipse(x, y, 24, 24, QColor("gray"))
 
     def draw_red_k(self, painter, x, y):
         painter.setBrush(QBrush(QColor("red")))

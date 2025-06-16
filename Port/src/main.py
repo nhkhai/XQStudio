@@ -1,13 +1,10 @@
 import sys
 
-from PyQt5.QtCore import QRectF, QEvent
-from PyQt5.QtGui import QColor, QBrush, QPixmap
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QWidget, QDialog, \
-    QGraphicsScene, QGraphicsView, QTabWidget
+from PyQt5.QtCore import QEvent, QRectF
+from PyQt5.QtGui import QColor, QBrush, QPixmap, QFont
+from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow, QPushButton, QLabel, QVBoxLayout, QWidget, QTabWidget, \
+    QGraphicsScene, QGraphicsView
 
-from about import AboutDialog
-from chessboard import ChessboardView
-from event_handler import EventHandler
 from position_initializer import PositionInitializer
 from tips import TipsDialog
 from wizard import WizardDialog
@@ -19,47 +16,11 @@ class ChessPieceRenderer:
     def __init__(self):
         self.piece_name = "RHEAKAEHRCCPPPPPrheakaehrccppppp"
         self.piece_positions = [100] * 32
+        self.is_red_at_bottom = True  # Defined missing attribute
 
-    def render_piece(self, painter, piece_char, x_pos, y_pos):
-        x = 20 + 26 * x_pos - 26 // 2 + 1
-        y = 20 + 26 * y_pos - 26 // 2 + 1
-
-        painter.setBrush(QBrush(QColor("blue")))
-        painter.drawEllipse(x, y, 24, 24)
-        painter.setBrush(QBrush(QColor("white")))
-        # Add specific rendering logic for each piece
-
-
-class Chessboard(QGraphicsScene):
-    def __init__(self):
-        super().__init__()
-        self.piece_renderer = ChessPieceRenderer()
-
-    def draw_board(self):
-        # Draw border
-        self.addRect(QRectF(3, 3, 247 - 6, 299 - 6), brush=QBrush(QColor("gray")))
-        self.addRect(QRectF(4, 4, 247 - 6, 299 - 6), brush=QBrush(QColor("white")))
-
-        # Draw horizontal lines
-        for i in range(10):
-            self.addLine(20, 20 + i * 26, 20 + 8 * 26, 20 + i * 26, QColor("black"))
-
-        # Draw vertical lines
-        for i in range(9):
-            self.addLine(20 + i * 26, 20, 20 + i * 26, 20 + 4 * 26, QColor("black"))
-            self.addLine(
-                20 + i * 26, 20 + 5 * 26, 20 + i * 26, 20 + 9 * 26, QColor("black")
-            )
-
-        # Draw King positions
-        self.addLine(20 + 3 * 26, 20, 20 + 5 * 26, 20 + 2 * 26, QColor("black"))
-        self.addLine(20 + 3 * 26, 20 + 2 * 26, 20 + 5 * 26, 20, QColor("black"))
-        self.addLine(
-            20 + 3 * 26, 20 + 9 * 26, 20 + 5 * 26, 20 + 7 * 26, QColor("black")
-        )
-        self.addLine(
-            20 + 3 * 26, 20 + 7 * 26, 20 + 5 * 26, 20 + 9 * 26, QColor("black")
-        )
+    def render_piece(self, x_pos, y_pos):
+        # Removed unused painter parameter and variables x, y
+        pass
 
     def draw_piece(self, painter, piece_char, x_pos, y_pos):
         if self.is_red_at_bottom:
@@ -72,8 +33,73 @@ class Chessboard(QGraphicsScene):
 
         painter.setBrush(QBrush(QColor("blue")))
         painter.drawEllipse(x, y, 24, 24)
-        painter.setBrush(QBrush(QColor("white")))
-        # Add specific drawing logic for each piece
+        painter.setFont(QFont("Arial", 12, QFont.Bold))  # Set font for the text
+        painter.setPen(QColor("white"))  # Set pen color for text
+        painter.drawText(x + 6, y + 18, piece_char)  # Draw the piece character
+
+        self.is_red_at_bottom = True
+
+
+class Chessboard(QGraphicsScene):
+    def __init__(self):
+        super().__init__()
+        self.piece_renderer = ChessPieceRenderer()
+        self.is_red_at_bottom = True  # Ensure this attribute is defined
+        self.setSceneRect(0, 0, 732, 454)  # Set chessboard dimensions
+
+    def draw_board(self):
+        # Draw border
+        self.addRect(QRectF(3, 3, 732 - 6, 454 - 6), brush=QBrush(QColor("gray")))
+        self.addRect(QRectF(4, 4, 732 - 6, 454 - 6), brush=QBrush(QColor("white")))
+
+        # Draw horizontal lines
+        for i in range(10):
+            self.addLine(20, 20 + i * 26, 20 + 8 * 26, 20 + i * 26, QColor("black"))
+
+        # Draw vertical lines
+        for i in range(9):
+            self.addLine(20 + i * 26, 20, 20 + i * 26, 20 + 4 * 26, QColor("black"))
+            self.addLine(20 + i * 26, 20 + 5 * 26, 20 + i * 26, 20 + 9 * 26, QColor("black"))
+
+    def initialize_pieces(self):
+        # Initialize pieces on the board
+        print("Initializing pieces...")
+        self.piece_renderer.piece_positions = [
+            40, 41, 42, 43, 44, 45, 46, 47, 48, 49,  # Red pieces
+            30, 31, 32, 33, 34, 35, 36, 37, 38, 39,  # Black pieces
+        ]
+        self.piece_renderer.piece_name = "RHEAKAEHRCCPPPPPrheakaehrccppppp"
+
+        for i, pos in enumerate(self.piece_renderer.piece_positions):
+            if pos > 89:
+                continue
+            x_pos = pos // 10
+            y_pos = pos % 10
+
+            # Use addEllipse for rendering pieces instead of QPainter
+            x = 20 + 26 * x_pos - 26 // 2 + 1
+            y = 20 + 26 * y_pos - 26 // 2 + 1
+
+            ellipse = self.addEllipse(x, y, 24, 24, QColor("blue"), QBrush(QColor("blue")))
+            text = self.addText(self.piece_renderer.piece_name[i], QFont("Arial", 12, QFont.Bold))
+            text.setDefaultTextColor(QColor("white"))
+            text_rect = text.boundingRect()
+            text.setPos(x + (24 - text_rect.width()) / 2, y + (24 - text_rect.height()) / 2)
+
+    def draw_piece(self, painter, piece_char, x_pos, y_pos):
+        if self.is_red_at_bottom:
+            y_pos = 9 - y_pos
+        else:
+            x_pos = 8 - x_pos
+
+        x = 20 + 26 * x_pos - 26 // 2 + 1
+        y = 20 + 26 * y_pos - 26 // 2 + 1
+
+        painter.setBrush(QBrush(QColor("blue")))
+        painter.drawEllipse(x, y, 24, 24)
+        painter.setFont(QFont("Arial", 12, QFont.Bold))  # Set font for the text
+        painter.setPen(QColor("white"))  # Set pen color for text
+        painter.drawText(x + 6, y + 18, piece_char)  # Draw the piece character
 
     def draw_position(self, painter):
         for i, pos in enumerate(self.piece_renderer.piece_positions):
@@ -81,7 +107,7 @@ class Chessboard(QGraphicsScene):
                 continue
             x_pos = pos // 10
             y_pos = pos % 10
-            self.piece_renderer.render_piece(
+            self.draw_piece(
                 painter, self.piece_renderer.piece_name[i], x_pos, y_pos
             )
 
@@ -435,12 +461,17 @@ class XQStudioApp(QApplication):
         self.table_window = TableWindow()
 
 
-class AboutWindow(QMainWindow):
+class AboutWindow(QDialog):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("About XQStudio")
         self.setGeometry(200, 200, 400, 300)
-        # Add UI components for the About window
+        layout = QVBoxLayout()
+        layout.addWidget(QLabel("XQStudio Version 1.63\nDeveloped by Mr. Ng Heng Khai"))
+        self.setLayout(layout)
+
+    def exec_(self):
+        self.exec()  # Correctly invoke the modal dialog
 
 
 class SearchWindow(QMainWindow):
@@ -503,14 +534,17 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("XQStudio 1.63")
 
         # Initialize handlers
-        self.event_handler = EventHandler(self)
         self.position_initializer = PositionInitializer()
 
         # Main layout
         layout = QVBoxLayout()
 
         # Add chessboard view
-        self.chessboard_view = ChessboardView()
+        self.chessboard_view = QGraphicsView()
+        self.chessboard = Chessboard()
+        self.chessboard.draw_board()
+        self.chessboard.initialize_pieces()
+        self.chessboard_view.setScene(self.chessboard)
         layout.addWidget(self.chessboard_view)
 
         # Add widgets
@@ -534,8 +568,13 @@ class MainWindow(QMainWindow):
         container.setLayout(layout)
         self.setCentralWidget(container)
 
+        # Ensure QPushButton and its clicked signal are correctly initialized and connected
+        self.search_button = QPushButton("Search", self)
+        self.search_button.setGeometry(10, 50, 100, 30)
+        self.search_button.clicked.connect(self.on_search)  # Ensure this connection is valid
+
     def show_about(self):
-        dialog = AboutDialog()
+        dialog = AboutWindow()
         dialog.exec_()
 
     def show_wizard(self):
@@ -546,10 +585,14 @@ class MainWindow(QMainWindow):
         dialog = TipsDialog()
         dialog.exec_()
 
+    def on_search(self):
+        print("Search button clicked")
+
 
 # Main entry point for the Python version of XQStudio.
 if __name__ == "__main__":
     import logging
+
     logging.basicConfig(level=logging.INFO)
     logging.info("Starting XQStudio Application...")
 
