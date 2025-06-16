@@ -420,7 +420,7 @@ class XQFileStream:
 
 class XQStudioApp(QApplication):
     def __init__(self):
-        super().__init__()
+        super().__init__(sys.argv)
         self.setApplicationName("XQStudio 1.63")
 
         # Initialize main window
@@ -549,7 +549,9 @@ class MainWindow(QMainWindow):
 
 # Main entry point for the Python version of XQStudio.
 if __name__ == "__main__":
-    print("Welcome to XQStudio Python Edition!")
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    logging.info("Starting XQStudio Application...")
 
     app = XQStudioApp()
     sys.exit(app.exec_())
